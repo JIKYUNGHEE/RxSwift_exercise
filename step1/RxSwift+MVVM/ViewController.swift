@@ -76,18 +76,23 @@ class ViewController: UIViewController {
         //2. Observable로 오는 데이터를 받아서 처리하는 방법
         let disposable = downloadJson(MEMBER_LIST_URL)
             .debug()
-            .subscribe { event in
-                switch event {
-                case let .next(json):
+            .observeOn(MainScheduler.instance)  //sugar api: operator
+            .subscribe(onNext: { json in
                     self.editView.text = json
                     self.setVisibleWithAnimation(self.activityIndicator, false)
-                    //clouser 사라짐 -> reference count 사라짐
-                case .completed:    //reference 없어짐
-                    break
-                case .error:        //reference 없어짐
-                    break
-                }
-            }
+            }, onError: {err in print(err)})
+//            .subscribe { event in
+//                switch event {
+//                case let .next(json):
+//                    self.editView.text = json
+//                    self.setVisibleWithAnimation(self.activityIndicator, false)
+//                    //clouser 사라짐 -> reference count 사라짐
+//                case .completed:    //reference 없어짐
+//                    break
+//                case .error:        //reference 없어짐
+//                    break
+//                }
+//            }
         disposable.dispose()    // 이후에는 새로운 subscribe 가 있어야 실행(?) 가능 --- 재사용 불가
     }
 }
