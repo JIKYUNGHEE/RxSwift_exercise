@@ -31,6 +31,13 @@ class ViewController: UIViewController {
             self?.view.layoutIfNeeded()
         })
     }
+    
+    func downloadJson(_ url: String) -> String? {
+        let url = URL(string: url)!
+        let data = try! Data(contentsOf: url)
+        let json = String(data: data, encoding: .utf8)
+        return json
+    }
 
     // MARK: SYNC
 
@@ -41,9 +48,7 @@ class ViewController: UIViewController {
         setVisibleWithAnimation(activityIndicator, true)
 
         DispatchQueue.global().async {
-            let url = URL(string: MEMBER_LIST_URL)!
-            let data = try! Data(contentsOf: url)
-            let json = String(data: data, encoding: .utf8)
+            let json = self.downloadJson(MEMBER_LIST_URL)
             
             DispatchQueue.main.async {
                 self.editView.text = json
