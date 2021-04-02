@@ -76,7 +76,10 @@ class ViewController: UIViewController {
         //2. Observable로 오는 데이터를 받아서 처리하는 방법
         let disposable = downloadJson(MEMBER_LIST_URL)
             .debug()
-            .observeOn(MainScheduler.instance)  //sugar api: operator
+            .observeOn(MainScheduler.instance)  //sugar api: operator(데이터를 중간에 바꾸는 녀석들) --- subscribe > onNext 가 어느 스레들에서 동작하게 할 것인지
+            .map{ json in json?.count ?? 0 }    //sugar api: operator
+            .filter{ cnt in cnt > 0 }           //sugar api: operator
+            .map{"\($0)"}                       //sugar api: operator
             .subscribe(onNext: { json in
                     self.editView.text = json
                     self.setVisibleWithAnimation(self.activityIndicator, false)
