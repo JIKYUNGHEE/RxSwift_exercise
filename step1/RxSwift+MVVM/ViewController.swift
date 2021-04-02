@@ -28,6 +28,8 @@ class 나중에생기는데이터<T> {    //Observable<T>
 class ViewController: UIViewController {
     @IBOutlet var timerLabel: UILabel!
     @IBOutlet var editView: UITextView!
+    
+    var disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +38,11 @@ class ViewController: UIViewController {
         }
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        disposeBag = DisposeBag()
+    }
+    
     private func setVisibleWithAnimation(_ v: UIView?, _ s: Bool) {
         guard let v = v else { return }
         UIView.animate(withDuration: 0.3, animations: { [weak v] in
@@ -75,6 +82,7 @@ class ViewController: UIViewController {
             return Disposables.create()
         }
     }
+    
 
     // MARK: SYNC
 
@@ -88,13 +96,15 @@ class ViewController: UIViewController {
         let jsonObservable = downloadJson(MEMBER_LIST_URL)      // just, from(생성)
         let helloObservable = Observable.just("Hello world!")
         
-        _ = Observable.zip(jsonObservable, helloObservable) { $1 + "\n" + $0 }
+       _ = Observable.zip(jsonObservable, helloObservable) { $1 + "\n" + $0 }
             .observeOn(MainScheduler.instance)                              //onNext()... 등을 어디서 할 것인가
             .subscribe(onNext: { json in
                     self.editView.text = json
                     self.setVisibleWithAnimation(self.activityIndicator, false)
             }, onError: {err in print(err)})
+            .disposed(by: disposeBag)
         
+//        disposable.insert(dispose)
 //        disposable.dispose()    // 이후에는 새로운 subscribe 가 있어야 실행(?) 가능 --- 재사용 불가
     }
 }
