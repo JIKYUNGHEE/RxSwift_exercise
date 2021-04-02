@@ -57,7 +57,7 @@ class ViewController: UIViewController {
     // 5. Disposed
     
     func downloadJson(_ url: String) -> Observable<String?> {
-        return Observable.just("Hello world")   // 간단한 데이터 1개 전달 할 때(아래랑 같음!)
+        return Observable.from(["Hello", "World"])
 //        return Observable.create() { emitter in
 //            emitter.onNext("Hello World")
 //            emitter.onCompleted()
