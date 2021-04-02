@@ -57,38 +57,10 @@ class ViewController: UIViewController {
     // 5. Disposed
     
     func downloadJson(_ url: String) -> Observable<String?> {
-        //1. 비동기로 생기는 데이터를 Observable로 감싸서 리턴하는 방법
-       return Observable.create() { emitter in
-            let url = URL(string: url)!
-                    //URLSession 은 main 스레드가 아닌, 다른 스레드
-            let task = URLSession.shared.dataTask(with: url) { (data, _, err) in
-                guard err == nil else {
-                    emitter.onError(err!)
-                    return
-                }
-                
-                if let dat = data, let json = String(data: dat, encoding: .utf8) {
-                    emitter.onNext(json)
-                }
-            
-                emitter.onCompleted()
-            }
-        task.resume()
-        
-        return Disposables.create() {
-            task.cancel()
-        }
-    }
-//        return Observable.create { f in
-//            DispatchQueue.global().async {
-//                let url = URL(string: url)!
-//                let data = try! Data(contentsOf: url)
-//                let json = String(data: data, encoding: .utf8)
-//                DispatchQueue.main.async {
-//                    f.onNext(json)
-//                }
-//            }
-//
+        return Observable.just("Hello world")   // 간단한 데이터 1개 전달 할 때(아래랑 같음!)
+//        return Observable.create() { emitter in
+//            emitter.onNext("Hello World")
+//            emitter.onCompleted()
 //            return Disposables.create()
 //        }
     }
@@ -116,9 +88,6 @@ class ViewController: UIViewController {
                     break
                 }
             }
-        
         disposable.dispose()    // 이후에는 새로운 subscribe 가 있어야 실행(?) 가능 --- 재사용 불가
-        
-        
     }
 }
