@@ -8,7 +8,9 @@
 
 import Foundation
 
-// ViewModel
+//ViewModel: View 를 위한 Model
 struct Menu {
-    
+    var name: String
+    var price: Int
+    var count: Int
 }
