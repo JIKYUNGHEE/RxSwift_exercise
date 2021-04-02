@@ -76,10 +76,10 @@ class ViewController: UIViewController {
                 case let .next(json):
                     self.editView.text = json
                     self.setVisibleWithAnimation(self.activityIndicator, false)
-                
-                case .completed:
+                    //clouser 사라짐 -> reference count 사라짐
+                case .completed:    //reference 없어짐
                     break
-                case .error:
+                case .error:        //reference 없어짐
                     break
                 }
             }
