@@ -45,22 +45,20 @@ class ViewController: UIViewController {
         })
     }
     
-
-    // PromiseKit
-    // Bolt
     // RxSwift
-    
     //비동기로 오는 데이터를 return 값으로 사용하고 싶어서
-    func downloadJson(_ url: String) -> 나중에생기는데이터<String?> {
-        return 나중에생기는데이터() { f in
+    func downloadJson(_ url: String) -> Observable<String?> {
+        return Observable.create { f in
             DispatchQueue.global().async {
                 let url = URL(string: url)!
                 let data = try! Data(contentsOf: url)
                 let json = String(data: data, encoding: .utf8)
                 DispatchQueue.main.async {
-                    f(json)
+                    f.onNext(json)
                 }
             }
+            
+            return Disposables.create()
         }
     }
 
@@ -72,10 +70,18 @@ class ViewController: UIViewController {
         editView.text = ""
         setVisibleWithAnimation(activityIndicator, true)
 
-        let json:나중에생기는데이터<String?> = downloadJson(MEMBER_LIST_URL)
-        json.나중에오면 { text in
-            self.editView.text = text
-            self.setVisibleWithAnimation(self.activityIndicator, false)
-        }
+        downloadJson(MEMBER_LIST_URL)
+            .subscribe { event in
+                switch event {
+                case let .next(json):
+                    self.editView.text = json
+                    self.setVisibleWithAnimation(self.activityIndicator, false)
+                
+                case .completed:
+                    break
+                case .error:
+                    break
+                }
+            }
     }
 }
