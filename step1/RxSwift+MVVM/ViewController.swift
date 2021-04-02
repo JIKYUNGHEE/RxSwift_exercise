@@ -12,6 +12,19 @@ import UIKit
 
 let MEMBER_LIST_URL = "https://my.api.mockaroo.com/members_with_avatar.json?key=44ce18f0"
 
+
+class 나중에생기는데이터<T> {
+    private let task: (@escaping (T) -> Void) -> Void
+       
+    init(task: @escaping (@escaping (T) -> Void) -> Void) {
+        self.task = task
+    }
+    
+    func 나중에오면(_ f: @escaping (T) -> Void) {
+        task(f)
+    }
+}
+
 class ViewController: UIViewController {
     @IBOutlet var timerLabel: UILabel!
     @IBOutlet var editView: UITextView!
@@ -32,15 +45,21 @@ class ViewController: UIViewController {
         })
     }
     
-    //@escaping: 본 함수가 끝난 뒤에도 해당 함수가 실행되어야 할 때 사용
-    //해당 함수 자체가 Optional 일 경우, @escaping 가 기본적으로 적용되어 있음(왜 일까?)
-    func downloadJson(_ url: String, _ completion: @escaping ((String?) -> Void)) {
-        DispatchQueue.global().async {
-            let url = URL(string: url)!
-            let data = try! Data(contentsOf: url)
-            let json = String(data: data, encoding: .utf8)
-            DispatchQueue.main.async {
-                completion(json)
+
+    // PromiseKit
+    // Bolt
+    // RxSwift
+    
+    //비동기로 오는 데이터를 return 값으로 사용하고 싶어서
+    func downloadJson(_ url: String) -> 나중에생기는데이터<String?> {
+        return 나중에생기는데이터() { f in
+            DispatchQueue.global().async {
+                let url = URL(string: url)!
+                let data = try! Data(contentsOf: url)
+                let json = String(data: data, encoding: .utf8)
+                DispatchQueue.main.async {
+                    f(json)
+                }
             }
         }
     }
@@ -53,8 +72,9 @@ class ViewController: UIViewController {
         editView.text = ""
         setVisibleWithAnimation(activityIndicator, true)
 
-        self.downloadJson(MEMBER_LIST_URL){ json in
-            self.editView.text = json
+        let json:나중에생기는데이터<String?> = downloadJson(MEMBER_LIST_URL)
+        json.나중에오면 { text in
+            self.editView.text = text
             self.setVisibleWithAnimation(self.activityIndicator, false)
         }
     }
