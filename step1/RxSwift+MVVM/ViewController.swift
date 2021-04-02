@@ -55,14 +55,25 @@ class ViewController: UIViewController {
     // ----- 끝 -----(재사용 불가)
     // 4. onCompleted / onError
     // 5. Disposed
-    
-    func downloadJson(_ url: String) -> Observable<String?> {
-        return Observable.from(["Hello", "World"])
-//        return Observable.create() { emitter in
-//            emitter.onNext("Hello World")
-//            emitter.onCompleted()
-//            return Disposables.create()
-//        }
+    func downloadJson(_ url: String) -> Observable<String> {
+        return Observable.create() { emitter in
+            let url = URL(string: url)!
+            let task = URLSession.shared.dataTask(with: url) { (data, _, err) in
+                guard err == nil else {
+                    emitter.onError(err!)
+                    return
+                }
+                
+                if let dat = data, let json = String(data: dat, encoding: .utf8){
+                    emitter.onNext(json)
+                }
+                
+                emitter.onCompleted()
+            }
+            task.resume()
+            
+            return Disposables.create()
+        }
     }
 
     // MARK: SYNC
@@ -74,27 +85,17 @@ class ViewController: UIViewController {
         setVisibleWithAnimation(activityIndicator, true)
         
         //2. Observable로 오는 데이터를 받아서 처리하는 방법
-        let disposable = downloadJson(MEMBER_LIST_URL)      // just, from(생성)
-            .debug()
-            .observeOn(MainScheduler.instance)  //sugar api: operator(데이터를 중간에 바꾸는 녀석들) --- subscribe > onNext 가 어느 스레들에서 동작하게 할 것인지
-            .map{ json in json?.count ?? 0 }    //sugar api: operator
-            .filter{ cnt in cnt > 0 }           //sugar api: operator
-            .map{"\($0)"}                       //sugar api: operator
+        let jsonObservable = downloadJson(MEMBER_LIST_URL)      // just, from(생성)
+        let helloObservable = Observable.just("Hello world!")
+        
+        _ = Observable.zip(jsonObservable, helloObservable) { $1 + "\n" + $0 }
             .observeOn(MainScheduler.instance)                              //onNext()... 등을 어디서 할 것인가
-            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .default))   //위치와 상관 X(Observable 실행을 어디서 할 것 인가)
             .subscribe(onNext: { json in
                     self.editView.text = json
                     self.setVisibleWithAnimation(self.activityIndicator, false)
             }, onError: {err in print(err)})
-
-        //operator 종류
-        //1. 생성
-        //2. 데이터 변형
-        //3. 데이터 필터링
-        //4. 여러 Observable combining
-        //5. 에러 핸들링
-        //6. Utility ...
         
-        disposable.dispose()    // 이후에는 새로운 subscribe 가 있어야 실행(?) 가능 --- 재사용 불가
+//        disposable.dispose()    // 이후에는 새로운 subscribe 가 있어야 실행(?) 가능 --- 재사용 불가
     }
 }
+//
