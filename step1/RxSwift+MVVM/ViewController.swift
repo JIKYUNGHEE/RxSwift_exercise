@@ -74,28 +74,27 @@ class ViewController: UIViewController {
         setVisibleWithAnimation(activityIndicator, true)
         
         //2. Observable로 오는 데이터를 받아서 처리하는 방법
-        let disposable = downloadJson(MEMBER_LIST_URL)
+        let disposable = downloadJson(MEMBER_LIST_URL)      // just, from(생성)
             .debug()
             .observeOn(MainScheduler.instance)  //sugar api: operator(데이터를 중간에 바꾸는 녀석들) --- subscribe > onNext 가 어느 스레들에서 동작하게 할 것인지
             .map{ json in json?.count ?? 0 }    //sugar api: operator
             .filter{ cnt in cnt > 0 }           //sugar api: operator
             .map{"\($0)"}                       //sugar api: operator
+            .observeOn(MainScheduler.instance)                              //onNext()... 등을 어디서 할 것인가
+            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .default))   //위치와 상관 X(Observable 실행을 어디서 할 것 인가)
             .subscribe(onNext: { json in
                     self.editView.text = json
                     self.setVisibleWithAnimation(self.activityIndicator, false)
             }, onError: {err in print(err)})
-//            .subscribe { event in
-//                switch event {
-//                case let .next(json):
-//                    self.editView.text = json
-//                    self.setVisibleWithAnimation(self.activityIndicator, false)
-//                    //clouser 사라짐 -> reference count 사라짐
-//                case .completed:    //reference 없어짐
-//                    break
-//                case .error:        //reference 없어짐
-//                    break
-//                }
-//            }
+
+        //operator 종류
+        //1. 생성
+        //2. 데이터 변형
+        //3. 데이터 필터링
+        //4. 여러 Observable combining
+        //5. 에러 핸들링
+        //6. Utility ...
+        
         disposable.dispose()    // 이후에는 새로운 subscribe 가 있어야 실행(?) 가능 --- 재사용 불가
     }
 }
