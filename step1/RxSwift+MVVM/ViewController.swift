@@ -13,14 +13,14 @@ import UIKit
 let MEMBER_LIST_URL = "https://my.api.mockaroo.com/members_with_avatar.json?key=44ce18f0"
 
 
-class 나중에생기는데이터<T> {
+class 나중에생기는데이터<T> {    //Observable<T>
     private let task: (@escaping (T) -> Void) -> Void
        
     init(task: @escaping (@escaping (T) -> Void) -> Void) {
         self.task = task
     }
     
-    func 나중에오면(_ f: @escaping (T) -> Void) {
+    func 나중에오면(_ f: @escaping (T) -> Void) {    //subscribe
         task(f)
     }
 }
@@ -70,7 +70,7 @@ class ViewController: UIViewController {
         editView.text = ""
         setVisibleWithAnimation(activityIndicator, true)
 
-        downloadJson(MEMBER_LIST_URL)
+        let disposable = downloadJson(MEMBER_LIST_URL)
             .subscribe { event in
                 switch event {
                 case let .next(json):
@@ -83,5 +83,7 @@ class ViewController: UIViewController {
                     break
                 }
             }
+        
+        disposable.dispose()
     }
 }
