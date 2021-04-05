@@ -14,18 +14,33 @@ class MenuViewController: UIViewController {
     // MARK: - Life Cycle
     let viewModel = MenuListViewModel()
     var disposeBag = DisposeBag()
+    
+    let cellId = "MenuItemTableViewCell"
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        updateUI()
+        tableView.dataSource = nil
+        
+        viewModel.menuObservable
+            .bind(to: tableView.rx.items(cellIdentifier: cellId, cellType: MenuItemTableViewCell.self)) { index, item, cell in
+                cell.title.text = "\(item.name)"
+                cell.price.text = "\(item.price)"
+                cell.count.text = "\(item.count)"
+            }
+            .disposed(by: disposeBag)
         
         viewModel.totalPrice
             .scan(0,accumulator: +)
             .map{ $0.currencyKR() }
-            .subscribe(onNext: {
-                        self.totalPrice.text = $0
-            })
+            .bind(to: totalPriceLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        viewModel.itemCount
+            .scan(0, accumulator: +)
+            .map{ $0.currencyKR()}
+            .bind(to: itemCountLabel.rx.text)
             .disposed(by: disposeBag)
     }
 
@@ -48,41 +63,35 @@ class MenuViewController: UIViewController {
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var tableView: UITableView!
     @IBOutlet var itemCountLabel: UILabel!
-    @IBOutlet var totalPrice: UILabel!
+    @IBOutlet var totalPriceLabel: UILabel!
 
     @IBAction func onClear() {
     }
 
-    @IBAction func onOrder(_ sender: UIButton) {
-        // TODO: no selection
-        // showAlert("Order Fail", "No Orders")
-//        performSegue(withIdentifier: "OrderViewController", sender: nil)
-        
-//        viewModel.totalPrice += 100
-//        updateUI()
-        
-        viewModel.totalPrice.onNext(100)
+    @IBAction func onOrder(_ sender: UIButton) {        
+        viewModel.itemCount
+            .map{ "\($0)"}
+            .subscribe(onNext: {
+                self.itemCountLabel.text = $0
+            })
+            .disposed(by: disposeBag)
     }
-    
-//    func updateUI() {
-//        itemCountLabel.text = "\(viewModel.itemCount)"
-//        totalPrice.text = viewModel.totalPrice.currencyKR()
+
+}
+//
+//extension MenuViewController: UITableViewDataSource {
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return viewModel.menuObservable.
 //    }
-}
-
-extension MenuViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.menus.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
-
-        let cellMenu = viewModel.menus[indexPath.row]
-        cell.title.text = "MENU \(cellMenu.name)"
-        cell.price.text = "\(cellMenu.price)"
-        cell.count.text = "\(cellMenu.count)"
-
-        return cell
-    }
-}
+//
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
+//
+//        let cellMenu = viewModel.menus[indexPath.row]
+//        cell.title.text = "MENU \(cellMenu.name)"
+//        cell.price.text = "\(cellMenu.price)"
+//        cell.count.text = "\(cellMenu.count)"
+//
+//        return cell
+//    }
+//}

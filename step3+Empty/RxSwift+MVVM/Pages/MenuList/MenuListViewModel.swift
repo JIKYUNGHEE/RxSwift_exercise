@@ -10,18 +10,25 @@ import Foundation
 import RxSwift
 
 class MenuListViewModel {
-    let menus: [Menu] = [
-        Menu(name: "튀김1", price: 100, count: 0),
-        Menu(name: "튀김2", price: 100, count: 0),
-        Menu(name: "튀김3", price: 100, count: 0),
-        Menu(name: "튀김4", price: 100, count: 0),
-        Menu(name: "튀김5", price: 100, count: 0),
-        Menu(name: "튀김6", price: 100, count: 0)
-    ]
     
-    var itemCount: Int = 5
-//    var totalPrice: Observable<Int> = Observable.just(10000)
+//    lazy var menuObservable = PublishSubject<[Menu]>()
+    lazy var menuObservable = BehaviorSubject<[Menu]>(value: [])
+    init() {
+        let menus: [Menu] = [
+            Menu(name: "튀김1", price: 100, count: 0),
+            Menu(name: "튀김2", price: 100, count: 0),
+            Menu(name: "튀김3", price: 100, count: 0),
+            Menu(name: "튀김4", price: 100, count: 0),
+            Menu(name: "튀김5", price: 100, count: 0),
+            Menu(name: "튀김6", price: 100, count: 0)
+        ]
+        menuObservable.onNext(menus)
+    }
     
-    //Subject - 외부에서 값 통제 가능
-    var totalPrice: PublishSubject<Int> = PublishSubject()
+    lazy var itemCount = menuObservable.map {
+        $0.map{ $0.count }.reduce(0, +)
+    }
+    lazy var totalPrice = menuObservable.map {
+        $0.map{ $0.price * $0.count }.reduce(0, +)
+    }
 }
