@@ -8,11 +8,14 @@
 
 import Foundation
 import RxSwift
+import RxRelay
 
 class MenuListViewModel {
     
 //    lazy var menuObservable = PublishSubject<[Menu]>()
     lazy var menuObservable = BehaviorSubject<[Menu]>(value: [])
+//    lazy var menuObservable = BehaviorRelay<[Menu]>(value: [])
+    
     init() {
         _ = APIService.fetchAllMenusRx()
             .map { data -> [MenuItem] in

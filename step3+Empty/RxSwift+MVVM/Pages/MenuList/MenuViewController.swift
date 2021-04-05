@@ -35,13 +35,12 @@ class MenuViewController: UIViewController {
             .disposed(by: disposeBag)
         
         viewModel.totalPrice
-//            .scan(0,accumulator: +)
             .map{ $0.currencyKR() }
-            .bind(to: totalPriceLabel.rx.text)
+            .asDriver(onErrorJustReturn: "")
+            .drive(totalPriceLabel.rx.text) //항상 main thread 에서 동작
             .disposed(by: disposeBag)
         
         viewModel.itemCount
-//            .scan(0, accumulator: +)
             .map{ $0.currencyKR()}
             .bind(to: itemCountLabel.rx.text)
             .disposed(by: disposeBag)
