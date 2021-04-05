@@ -16,7 +16,6 @@ class MenuViewController: UIViewController {
     var disposeBag = DisposeBag()
     
     let cellId = "MenuItemTableViewCell"
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,32 +65,12 @@ class MenuViewController: UIViewController {
     @IBOutlet var totalPriceLabel: UILabel!
 
     @IBAction func onClear() {
+        viewModel.clearAllItemSelected()
     }
 
     @IBAction func onOrder(_ sender: UIButton) {        
-        viewModel.itemCount
-            .map{ "\($0)"}
-            .subscribe(onNext: {
-                self.itemCountLabel.text = $0
-            })
-            .disposed(by: disposeBag)
+        viewModel.menuObservable.onNext([Menu(name: "changed1", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
+                                         Menu(name: "changed2", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
+                                         Menu(name: "changed3", price: Int.random(in: 100...2000), count: Int.random(in: 3...10))])
     }
-
 }
-//
-//extension MenuViewController: UITableViewDataSource {
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return viewModel.menuObservable.
-//    }
-//
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "MenuItemTableViewCell") as! MenuItemTableViewCell
-//
-//        let cellMenu = viewModel.menus[indexPath.row]
-//        cell.title.text = "MENU \(cellMenu.name)"
-//        cell.price.text = "\(cellMenu.price)"
-//        cell.count.text = "\(cellMenu.count)"
-//
-//        return cell
-//    }
-//}

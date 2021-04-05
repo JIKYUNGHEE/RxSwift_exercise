@@ -31,4 +31,17 @@ class MenuListViewModel {
     lazy var totalPrice = menuObservable.map {
         $0.map{ $0.price * $0.count }.reduce(0, +)
     }
+    
+    func clearAllItemSelected() {
+        _ = menuObservable
+            .map { menus in
+                menus.map { menu in
+                    Menu(name: menu.name, price: menu.price, count: 0)
+                }
+            }
+            .take(1)    //1번만 수행할거다.
+            .subscribe(onNext: {
+                self.menuObservable.onNext($0)
+            })
+    }
 }
