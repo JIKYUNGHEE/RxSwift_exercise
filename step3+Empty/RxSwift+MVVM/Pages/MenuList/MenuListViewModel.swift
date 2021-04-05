@@ -15,12 +15,12 @@ class MenuListViewModel {
     lazy var menuObservable = BehaviorSubject<[Menu]>(value: [])
     init() {
         let menus: [Menu] = [
-            Menu(name: "튀김1", price: 100, count: 0),
-            Menu(name: "튀김2", price: 100, count: 0),
-            Menu(name: "튀김3", price: 100, count: 0),
-            Menu(name: "튀김4", price: 100, count: 0),
-            Menu(name: "튀김5", price: 100, count: 0),
-            Menu(name: "튀김6", price: 100, count: 0)
+            Menu(id: 1, name: "튀김1", price: 100, count: 0),
+            Menu(id: 2, name: "튀김2", price: 100, count: 0),
+            Menu(id: 3, name: "튀김3", price: 100, count: 0),
+            Menu(id: 4, name: "튀김4", price: 100, count: 0),
+            Menu(id: 5, name: "튀김5", price: 100, count: 0),
+            Menu(id: 6, name: "튀김6", price: 100, count: 0)
         ]
         menuObservable.onNext(menus)
     }
@@ -36,7 +36,24 @@ class MenuListViewModel {
         _ = menuObservable
             .map { menus in
                 menus.map { menu in
-                    Menu(name: menu.name, price: menu.price, count: 0)
+                    Menu(id: menu.id, name: menu.name, price: menu.price, count: 0)
+                }
+            }
+            .take(1)    //1번만 수행할거다.
+            .subscribe(onNext: {
+                self.menuObservable.onNext($0)
+            })
+    }
+    
+    func changeCount(item: Menu, increase: Int) {
+        _ = menuObservable
+            .map { menus in
+                menus.map { menu in
+                    if menu.id == item.id {
+                        return Menu(id: menu.id, name: menu.name, price: menu.price, count: menu.count + increase)
+                    } else {
+                        return Menu(id: menu.id, name: menu.name, price: menu.price, count: menu.count)
+                    }
                 }
             }
             .take(1)    //1번만 수행할거다.

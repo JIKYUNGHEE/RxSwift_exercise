@@ -27,17 +27,21 @@ class MenuViewController: UIViewController {
                 cell.title.text = "\(item.name)"
                 cell.price.text = "\(item.price)"
                 cell.count.text = "\(item.count)"
+                
+                cell.onChange = { [weak self] increase in
+                    self?.viewModel.changeCount(item: item, increase: increase)
+                }
             }
             .disposed(by: disposeBag)
         
         viewModel.totalPrice
-            .scan(0,accumulator: +)
+//            .scan(0,accumulator: +)
             .map{ $0.currencyKR() }
             .bind(to: totalPriceLabel.rx.text)
             .disposed(by: disposeBag)
         
         viewModel.itemCount
-            .scan(0, accumulator: +)
+//            .scan(0, accumulator: +)
             .map{ $0.currencyKR()}
             .bind(to: itemCountLabel.rx.text)
             .disposed(by: disposeBag)
@@ -69,8 +73,8 @@ class MenuViewController: UIViewController {
     }
 
     @IBAction func onOrder(_ sender: UIButton) {        
-        viewModel.menuObservable.onNext([Menu(name: "changed1", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
-                                         Menu(name: "changed2", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
-                                         Menu(name: "changed3", price: Int.random(in: 100...2000), count: Int.random(in: 3...10))])
+        viewModel.menuObservable.onNext([Menu(id: 1, name: "changed1", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
+                                         Menu(id: 2, name: "changed2", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
+                                         Menu(id: 3, name: "changed3", price: Int.random(in: 100...2000), count: Int.random(in: 3...10))])
     }
 }
