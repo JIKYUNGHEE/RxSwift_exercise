@@ -72,9 +72,7 @@ class MenuViewController: UIViewController {
         viewModel.clearAllItemSelected()
     }
 
-    @IBAction func onOrder(_ sender: UIButton) {        
-        viewModel.menuObservable.onNext([Menu(id: 1, name: "changed1", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
-                                         Menu(id: 2, name: "changed2", price: Int.random(in: 100...2000), count: Int.random(in: 3...10)),
-                                         Menu(id: 3, name: "changed3", price: Int.random(in: 100...2000), count: Int.random(in: 3...10))])
+    @IBAction func onOrder(_ sender: UIButton) {
+        self.viewModel.onOrder()
     }
 }
