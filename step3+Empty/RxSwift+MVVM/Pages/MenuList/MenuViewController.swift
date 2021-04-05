@@ -7,13 +7,26 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class MenuViewController: UIViewController {
     // MARK: - Life Cycle
     let viewModel = MenuListViewModel()
+    var disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+//        updateUI()
+        
+        viewModel.totalPrice
+            .scan(0,accumulator: +)
+            .map{ $0.currencyKR() }
+            .subscribe(onNext: {
+                        self.totalPrice.text = $0
+            })
+            .disposed(by: disposeBag)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -43,8 +56,18 @@ class MenuViewController: UIViewController {
     @IBAction func onOrder(_ sender: UIButton) {
         // TODO: no selection
         // showAlert("Order Fail", "No Orders")
-        performSegue(withIdentifier: "OrderViewController", sender: nil)
+//        performSegue(withIdentifier: "OrderViewController", sender: nil)
+        
+//        viewModel.totalPrice += 100
+//        updateUI()
+        
+        viewModel.totalPrice.onNext(100)
     }
+    
+//    func updateUI() {
+//        itemCountLabel.text = "\(viewModel.itemCount)"
+//        totalPrice.text = viewModel.totalPrice.currencyKR()
+//    }
 }
 
 extension MenuViewController: UITableViewDataSource {

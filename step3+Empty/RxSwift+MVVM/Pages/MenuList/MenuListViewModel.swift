@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RxSwift
 
 class MenuListViewModel {
     let menus: [Menu] = [
@@ -18,5 +19,9 @@ class MenuListViewModel {
         Menu(name: "튀김6", price: 100, count: 0)
     ]
     
+    var itemCount: Int = 5
+//    var totalPrice: Observable<Int> = Observable.just(10000)
     
+    //Subject - 외부에서 값 통제 가능
+    var totalPrice: PublishSubject<Int> = PublishSubject()
 }
