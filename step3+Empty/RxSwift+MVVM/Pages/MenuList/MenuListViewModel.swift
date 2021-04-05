@@ -14,15 +14,24 @@ class MenuListViewModel {
 //    lazy var menuObservable = PublishSubject<[Menu]>()
     lazy var menuObservable = BehaviorSubject<[Menu]>(value: [])
     init() {
-        let menus: [Menu] = [
-            Menu(id: 1, name: "튀김1", price: 100, count: 0),
-            Menu(id: 2, name: "튀김2", price: 100, count: 0),
-            Menu(id: 3, name: "튀김3", price: 100, count: 0),
-            Menu(id: 4, name: "튀김4", price: 100, count: 0),
-            Menu(id: 5, name: "튀김5", price: 100, count: 0),
-            Menu(id: 6, name: "튀김6", price: 100, count: 0)
-        ]
-        menuObservable.onNext(menus)
+        _ = APIService.fetchAllMenusRx()
+            .map { data -> [MenuItem] in
+                struct Response:Decodable {
+                    let menus:[MenuItem]
+                }
+                let response = try! JSONDecoder().decode(Response.self, from: data)
+                return response.menus
+            }
+            .map { menuItems -> [Menu] in
+                var menus:[Menu] = []
+                menuItems.enumerated().forEach { (index, item) in
+                    let menu = Menu.fromMenuItems(id: index, item: item)
+                    menus.append(menu)
+                }
+               return menus
+            }
+            .take(1)
+            .bind(to: menuObservable)
     }
     
     lazy var itemCount = menuObservable.map {
